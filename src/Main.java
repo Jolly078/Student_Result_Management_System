@@ -65,10 +65,15 @@ class Main {
         System.out.print("Enter Student Score: ");
         studentScore = input.nextInt();
 
-        student = new Student(studentId, studentName, studentCourse, studentScore);
+        try {
+            student = new Student(studentId, studentName, studentCourse, studentScore);
+            studentManager.addStudent(student);
+            System.out.println("\nStudent registered!");
+        } catch (StudentNotFound e) {
+            System.out.println("\nError: " + e.getMessage());
+        }
 
-        studentManager.addStudent(student);
-        System.out.println("Student registered!");
+
     }
 
     private static void viewAllStudent(StudentManager studentManager) {

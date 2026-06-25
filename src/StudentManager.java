@@ -9,7 +9,11 @@ public class StudentManager {
 
     void addStudent(Student student) {
 
-        studentList.put(student.getStudentId(), student);
+        if (studentList.containsKey(student.getStudentId())) {
+            throw new StudentNotFound("Student with Id " + student.getStudentId() + " already Exists");
+        } else {
+            studentList.put(student.getStudentId(), student);
+        }
     }
 
     Student findStudentById(int studentId) {
