@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,13 +18,14 @@ class Main {
 
             System.out.print("""
                 \n1. Add Student.
-                2. View All Student.
+                2. View All Students.
                 3. Search Student.
                 4. Remove Student.
                 5. Show Best Student.
                 6. Show Average Score.
-                7. Exit
-                Input between (1-7):\s""");
+                7. Display Grade A Students.
+                8. Exit
+                Input between (1-8):\s""");
             option = input.nextInt();
 
             switch (option) {
@@ -33,7 +35,8 @@ class Main {
                 case 4 -> removeStudent(studentManager);
                 case 5 -> bestStudent(studentManager);
                 case 6 -> averageScore(studentManager);
-                case 7 -> {
+                case 7 -> displayGradeAStudent(studentManager);
+                case 8 -> {
                     System.out.println("Thank you for using the Product! See you later!");
                     status = false;
                 }
@@ -62,8 +65,19 @@ class Main {
         System.out.print("Enter Student Course: ");
         studentCourse = input.nextLine();
 
-        System.out.print("Enter Student Score: ");
-        studentScore = input.nextInt();
+        while (true) {
+
+            System.out.print("Enter Student Score: ");
+            studentScore = input.nextInt();
+            input.nextLine();
+
+            if (studentScore >100 || studentScore <0) {
+                System.out.println("Invalid Score! (Score must be between 1-100)");
+                continue;
+            }
+            break;
+        }
+
 
         try {
             student = new Student(studentId, studentName, studentCourse, studentScore);
@@ -78,16 +92,26 @@ class Main {
 
     private static void viewAllStudent(StudentManager studentManager) {
 
-        if (studentManager.getAllStudent() == null) {
+        List<Student> allStudents = studentManager.getAllStudent();
+        if (allStudents == null || allStudents.isEmpty()) {
             System.out.println("No Student has been Added!");
-        } else {
-            System.out.println("\nStudent list: ");
-            List<Student> allStudents = studentManager.getAllStudent();
-            int i = 1;
-            for (Student student: allStudents) {
-                System.out.println(i + ". " + student.getName());
-                i +=1;
+            return;
         }
+
+        String tableFormat = "%-8d | %-25s | %-20s | %-8d%n";
+        System.out.println("\nStudent list: ");
+        System.out.printf("%-8s | %-25s | %-20s | %-8s%n", "Id", "Name", "Course", "Score");
+        System.out.println("-------------------------------------------------------------------");
+
+
+        allStudents.sort(Comparator.comparingInt(Student::getStudentId));
+        for (Student student: allStudents) {
+
+            System.out.printf(tableFormat,
+                    student.getStudentId(),
+                    student.getName(),
+                    student.getCourse(),
+                    student.getScore());
 
 
         }
@@ -108,7 +132,8 @@ class Main {
             System.out.printf("%n%-20s %d" +
                               "%n%-20s %s" +
                               "%n%-20s %s" +
-                              "%n%-20s %d",
+                              "%n%-20s %d" +
+                              "%n%-20s %s",
                               "StudentID: ", studentId,
                               "Student Name: ", student.getName(),
                               "Student Course: ", student.getCourse(),
@@ -142,5 +167,29 @@ class Main {
     private static void averageScore(StudentManager studentManager) {
 
         System.out.println("The average score of all students is " + studentManager.calculateAverageScore());
+    }
+
+    private static void displayGradeAStudent(StudentManager studentManager) {
+
+        List<Student> allStudents = studentManager.getAllStudent();
+
+        if (allStudents == null || allStudents.isEmpty()) {
+            System.out.println("No Student has been Added!");
+            return;
+        }
+
+        String tableFormat = "%-8d | %-25s | %-20s | %-8d%n";
+        System.out.println("\n Grade A Students include: ");
+        System.out.printf("%-8s | %-25s | %-20s | %-8s%n", "Id", "Name", "Course", "Score");
+        System.out.println("-------------------------------------------------------------------");
+
+        allStudents.stream()
+                .filter(student -> student.getScore() >= 70)
+                .sorted(Comparator.comparingInt(Student::getStudentId))
+                .forEach(student -> System.out.printf(tableFormat,
+                        student.getStudentId(),
+                        student.getName(),
+                        student.getCourse(),
+                        student.getScore()));
     }
 }
